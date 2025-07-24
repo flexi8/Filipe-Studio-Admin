@@ -12,7 +12,7 @@
   <div class="mb-3">
     <h4>🎵 Add Music</h4>
     <input type="text" id="music-title" placeholder="Track Title" class="form-control mb-2" />
-    <input type="text" id="music-link" placeholder="Music Link" class="form-control mb-2" />
+    <input type="text" id="music-link" placeholder="Music Link (URL to .mp3)" class="form-control mb-2" />
     <button class="btn btn-success" onclick="uploadMusic()">Upload Music</button>
   </div>
 
@@ -26,7 +26,7 @@
   <div class="mb-3">
     <h4>📅 Add Event</h4>
     <input type="text" id="event-title" placeholder="Event Title" class="form-control mb-2" />
-    <input type="text" id="event-date" placeholder="Date" class="form-control mb-2" />
+    <input type="text" id="event-date" placeholder="Date (e.g. 2025-08-01)" class="form-control mb-2" />
     <button class="btn btn-warning" onclick="uploadEvent()">Upload Event</button>
   </div>
 
@@ -39,7 +39,7 @@
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-    import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+    import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyC_XrLii1AjtkfIIlyUhPDn_N2ObSWXywE",
@@ -57,30 +57,34 @@
     const uploadMusic = async () => {
       const title = document.getElementById('music-title').value;
       const link = document.getElementById('music-link').value;
-      await addDoc(collection(db, "music"), { title, link });
+      if (!title || !link) return alert("Please fill all music fields");
+      await addDoc(collection(db, "music"), { title, link, created: serverTimestamp() });
       alert("✅ Music uploaded");
-    }
+    };
 
     const uploadVideo = async () => {
       const title = document.getElementById('video-title').value;
       const link = document.getElementById('video-link').value;
-      await addDoc(collection(db, "videos"), { title, link });
+      if (!title || !link) return alert("Please fill all video fields");
+      await addDoc(collection(db, "videos"), { title, link, created: serverTimestamp() });
       alert("🎥 Video uploaded");
-    }
+    };
 
     const uploadEvent = async () => {
       const title = document.getElementById('event-title').value;
       const date = document.getElementById('event-date').value;
-      await addDoc(collection(db, "events"), { title, date });
+      if (!title || !date) return alert("Please fill all event fields");
+      await addDoc(collection(db, "events"), { title, date, created: serverTimestamp() });
       alert("📅 Event uploaded");
-    }
+    };
 
     const uploadMerch = async () => {
       const name = document.getElementById('merch-name').value;
       const link = document.getElementById('merch-link').value;
-      await addDoc(collection(db, "merch"), { name, link });
+      if (!name || !link) return alert("Please fill all merch fields");
+      await addDoc(collection(db, "merch"), { name, link, created: serverTimestamp() });
       alert("🛍️ Merch uploaded");
-    }
+    };
   </script>
 </body>
 </html>
