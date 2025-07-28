@@ -2,88 +2,96 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Filipe Studio Admin</title>
-  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"/>
   <style>
     body {
-      font-family: 'Segoe UI', sans-serif;
-      background: linear-gradient(to right, #5f27cd, #f368e0);
-      color: white;
+      background-color: #0d011e;
+      color: #e0b3ff;
       padding: 2rem;
+      font-family: 'Segoe UI', sans-serif;
     }
-    h1 {
-      text-align: center;
-      margin-bottom: 2rem;
+
+    h1, h4 {
+      text-shadow: 0 0 10px #a200ff, 0 0 20px #6f00ff;
     }
-    .section {
-      background: rgba(255, 255, 255, 0.1);
-      padding: 1rem;
-      margin-bottom: 2rem;
-      border-radius: 1rem;
+
+    .form-control {
+      background-color: #230035;
+      border: 1px solid #550088;
+      color: #fff;
+      box-shadow: 0 0 8px #8000ff44 inset;
     }
-    input, textarea {
-      width: 100%;
-      padding: 0.5rem;
-      margin-top: 0.5rem;
-      margin-bottom: 1rem;
-      border: none;
-      border-radius: 0.5rem;
+
+    .form-control:focus {
+      background-color: #2f004c;
+      color: #fff;
+      border-color: #b266ff;
+      box-shadow: 0 0 12px #d39aff;
     }
-    button {
-      background: white;
-      color: #5f27cd;
-      border: none;
-      padding: 0.7rem 1.5rem;
-      border-radius: 0.5rem;
-      cursor: pointer;
+
+    .btn {
       font-weight: bold;
+      box-shadow: 0 0 12px #a200ff99;
+      transition: all 0.3s ease;
     }
-    button:hover {
-      background: #f8f8f8;
+
+    .btn:hover {
+      transform: scale(1.03);
+      box-shadow: 0 0 20px #c155ff;
+    }
+
+    a.btn-outline-light {
+      border-color: #c084ff;
+      color: #c084ff;
+    }
+
+    a.btn-outline-light:hover {
+      background-color: #c084ff;
+      color: #000;
     }
   </style>
 </head>
-<body>
-  <h1>Filipe Studio Admin Panel</h1>
+<body class="bg-dark text-light">
 
-  <!-- MUSIC UPLOAD -->
-  <div class="section">
-    <h2>Upload Music</h2>
-    <input type="text" id="musicTitle" placeholder="Track Title">
-    <input type="text" id="musicLink" placeholder="MP3 Link">
-    <input type="text" id="musicImage" placeholder="Cover Image URL">
-    <button onclick="uploadMusic()">Upload Music</button>
+  <h1 class="mb-2">🎚️ Filipe Studio Admin</h1>
+
+  <!-- Link to public dashboard -->
+  <a href="dashboard.html" class="btn btn-outline-light mb-4">🌍 View Public Dashboard</a>
+
+  <div class="mb-3">
+    <h4>🎵 Add Music</h4>
+    <input type="text" id="music-title" placeholder="Track Title" class="form-control mb-2" />
+    <input type="text" id="music-link" placeholder="Music Link (URL to .mp3)" class="form-control mb-2" />
+    <button class="btn btn-success" onclick="uploadMusic()">Upload Music</button>
   </div>
 
-  <!-- VIDEO UPLOAD -->
-  <div class="section">
-    <h2>Upload Video</h2>
-    <input type="text" id="videoTitle" placeholder="Video Title">
-    <input type="text" id="videoLink" placeholder="YouTube Embed Link">
-    <input type="text" id="videoImage" placeholder="Thumbnail Image URL">
-    <button onclick="uploadVideo()">Upload Video</button>
+  <div class="mb-3">
+    <h4>🎥 Add Video</h4>
+    <input type="text" id="video-title" placeholder="Video Title" class="form-control mb-2" />
+    <input type="text" id="video-link" placeholder="YouTube Link" class="form-control mb-2" />
+    <button class="btn btn-primary" onclick="uploadVideo()">Upload Video</button>
   </div>
 
-  <!-- EVENT UPLOAD -->
-  <div class="section">
-    <h2>Upload Event</h2>
-    <input type="text" id="eventTitle" placeholder="Event Title">
-    <textarea id="eventDesc" placeholder="Event Description"></textarea>
-    <input type="text" id="eventImage" placeholder="Event Image URL">
-    <button onclick="uploadEvent()">Upload Event</button>
+  <div class="mb-3">
+    <h4>📅 Add Event</h4>
+    <input type="text" id="event-title" placeholder="Event Title" class="form-control mb-2" />
+    <input type="text" id="event-date" placeholder="Date (e.g. 2025-08-01)" class="form-control mb-2" />
+    <button class="btn btn-warning" onclick="uploadEvent()">Upload Event</button>
   </div>
 
-  <!-- MERCH UPLOAD -->
-  <div class="section">
-    <h2>Upload Merch</h2>
-    <input type="text" id="merchTitle" placeholder="Merch Name">
-    <input type="text" id="merchImage" placeholder="Image URL">
-    <button onclick="uploadMerch()">Upload Merch</button>
+  <div class="mb-3">
+    <h4>🛍️ Add Merch</h4>
+    <input type="text" id="merch-name" placeholder="Item Name" class="form-control mb-2" />
+    <input type="text" id="merch-link" placeholder="Buy Link" class="form-control mb-2" />
+    <button class="btn btn-info" onclick="uploadMerch()">Upload Merch</button>
   </div>
 
-  <script>
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
     const firebaseConfig = {
       apiKey: "AIzaSyC_XrLii1AjtkfIIlyUhPDn_N2ObSWXywE",
       authDomain: "fillipe-studio.firebaseapp.com",
@@ -94,59 +102,40 @@
       measurementId: "G-WGJ0KL26CR"
     };
 
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.firestore();
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
 
-    function uploadMusic() {
-      const title = document.getElementById("musicTitle").value;
-      const link = document.getElementById("musicLink").value;
-      const image = document.getElementById("musicImage").value;
-      if (title && link && image) {
-        db.collection("music").add({ title, link, image })
-          .then(() => alert("🎵 Music uploaded successfully"))
-          .catch(err => alert("Error: " + err.message));
-      } else {
-        alert("Please fill in all fields");
-      }
-    }
+    const uploadMusic = async () => {
+      const title = document.getElementById('music-title').value;
+      const link = document.getElementById('music-link').value;
+      if (!title || !link) return alert("Please fill all music fields");
+      await addDoc(collection(db, "music"), { title, link, created: serverTimestamp() });
+      alert("✅ Music uploaded");
+    };
 
-    function uploadVideo() {
-      const title = document.getElementById("videoTitle").value;
-      const link = document.getElementById("videoLink").value;
-      const image = document.getElementById("videoImage").value;
-      if (title && link && image) {
-        db.collection("videos").add({ title, link, image })
-          .then(() => alert("📹 Video uploaded successfully"))
-          .catch(err => alert("Error: " + err.message));
-      } else {
-        alert("Please fill in all fields");
-      }
-    }
+    const uploadVideo = async () => {
+      const title = document.getElementById('video-title').value;
+      const link = document.getElementById('video-link').value;
+      if (!title || !link) return alert("Please fill all video fields");
+      await addDoc(collection(db, "videos"), { title, link, created: serverTimestamp() });
+      alert("🎥 Video uploaded");
+    };
 
-    function uploadEvent() {
-      const title = document.getElementById("eventTitle").value;
-      const desc = document.getElementById("eventDesc").value;
-      const image = document.getElementById("eventImage").value;
-      if (title && desc && image) {
-        db.collection("events").add({ title, desc, image })
-          .then(() => alert("📅 Event uploaded successfully"))
-          .catch(err => alert("Error: " + err.message));
-      } else {
-        alert("Please fill in all fields");
-      }
-    }
-    
-    function uploadMerch() {
-      const title = document.getElementById("merchTitle").value;
-      const image = document.getElementById("merchImage").value;
-      if (title && image) {
-        db.collection("merch").add({ title, image })
-          .then(() => alert("🛍️ Merch uploaded successfully"))
-          .catch(err => alert("Error: " + err.message));
-      } else {
-        alert("Please fill in all fields");
-      }
-    }
+    const uploadEvent = async () => {
+      const title = document.getElementById('event-title').value;
+      const date = document.getElementById('event-date').value;
+      if (!title || !date) return alert("Please fill all event fields");
+      await addDoc(collection(db, "events"), { title, date, created: serverTimestamp() });
+      alert("📅 Event uploaded");
+    };
+
+    const uploadMerch = async () => {
+      const name = document.getElementById('merch-name').value;
+      const link = document.getElementById('merch-link').value;
+      if (!name || !link) return alert("Please fill all merch fields");
+      await addDoc(collection(db, "merch"), { name, link, created: serverTimestamp() });
+      alert("🛍️ Merch uploaded");
+    };
   </script>
 </body>
 </html>
